@@ -1,0 +1,149 @@
+<!DOCTYPE>
+<html>
+<head>
+	<title>Lop Hoc</title>
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<style type="text/css">
+		table{
+			margin: 0 auto;
+		}
+		td{
+			padding: 10px;
+		}
+		tr{
+			border: 1px solid #ddd;
+		}
+		form{
+			margin: 0;
+		}
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-default">
+	<div class="container">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="#">Lop Hoc</a>
+			<button type="button" class="navbar-toggle collapsed"  data-toggle="collapse" data-target="#bs-navbar-demo" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+			</button>
+		</div>
+
+		<div class="collapse navbar-collapse" id="bs-navbar-demo">
+			<ul class="nav navbar-nav">
+				<li><a href="/">Home</a></li>
+				<li><a href="/new">New</a></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+			</ul>
+		</div>
+	</div>
+</nav>
+
+<div class="container">
+<table>
+	<thead class="student">
+		<td id="stt">ID</td>
+		<td id="name">Name</td>
+		<td id="phone-number">Phone Number</td>
+		<td></td>
+		<td>
+			<a href="/new" class="btn btn-success btn-sm">Add</a>
+		</td>
+	</thead>
+	<% students.forEach(function(student, i){ %>
+		<tr class="student-info" >
+			<td id="id" class="stt">#</td>
+			<td class="name"><%= student.name %></td>
+			<td class="phone"><%= student.phone %></td>
+			<td>
+				<button class="btn var btn-warning btn-sm edit-btn">Edit</button>
+				<form class="edit-form" action="<%= student._id %>/edit" method="POST">
+					<input type="text" name="student[name]" value="<%= student.name %>">
+					<input type="text" name="student[phone]" value="<%= student.phone %>">
+					<button class="btn btn-default btn-sm">Update</button>
+				</form>			
+			</td>
+			<td>
+				<form class="delete-form" action="<%= student._id %>/delete" method="POST">
+					<button class="btn btn-danger btn-sm">Delete</button>
+				</form>
+			</td>
+		</tr>
+	<% }); %>
+</table>
+
+<script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+<script type="text/javascript">
+
+
+$(".edit-form").hide();
+$(".edit-btn").on("click", function(){
+	$(this).siblings("form").show();
+})
+
+$("td").on("submit", '.edit-form', function(e){
+	e.preventDefault();
+	var formData = $(this).serialize();
+	var url = $(this).attr("action");
+	var editingItem = $(this).parent().parent(".student-info");
+	$.ajax({
+		url: url,
+		data: formData,
+		type: "PUT",
+		success: function(data){
+			console.log(data);
+			editingItem.html(
+				`
+				<td id="${data._id}" class="stt">#</td>
+				<td class="name">${data.name}</td>
+				<td class="phone">${data.phone}</td>
+				<td>
+					<button class="btn var btn-warning btn-sm edit-btn">Edit</button>
+					<form class="edit-form" action="${data._id}/edit" method="POST">
+						<input type="text" name="student[name]" value="${data.name}">
+						<input type="text" name="student[phone]" value="${data.phone}">
+						<button class="btn btn-default btn-sm">Update</button>
+					</form>			
+				</td>
+				<td>
+					<form class="delete-form" action=""${data._id}/delete" method="POST">
+						<button class="btn btn-danger btn-sm">Delete</button>
+					</form>
+				</td>
+			`
+			);
+			$(".edit-form").hide();
+		}
+
+	});
+	
+});
+
+$(".delete-form").on("submit", function(e){
+	e.preventDefault();
+	var confirmM = confirm("Are you sure?");
+	if(confirmM){
+		var url = $(this).attr("action");
+		var deleteItem = $(this).parent().parent(".student-info");
+		$.ajax({
+			url: url,
+			deleteItem: deleteItem,
+			type: "DELETE",
+			success: function(data){
+				deleteItem.remove();
+			}
+		});
+	}
+})
+
+</script>
+</div>
+
+</body>
+</html>
